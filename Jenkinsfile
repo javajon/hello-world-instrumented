@@ -47,6 +47,7 @@ node {
     // Update images in manifests with current build
     sh("sed -i.bak 's#quay.io/${project}/${appName}:.*\$#${imageTag}#' ./k8s/canary/*.yaml")
     sh("sed -i.bak 's#quay.io/${project}/${appName}:.*\$#${imageTag}#' ./k8s/production/*.yaml")
+    sh("kubectl create namespace ${namespace}")
     sh("kubectl --namespace=${namespace} apply -f k8s/services/")
     sh("kubectl --namespace=${namespace} apply -f k8s/canary/")
     sh("kubectl --namespace=${namespace} label deployment hello-world-canary --overwrite version=v${BUILD_NUMBER}")
