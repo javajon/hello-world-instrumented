@@ -44,11 +44,14 @@ node {
   // If this is the first deployment
   if (firstDeploy) {
     stage 'First Deployment'
+
     // Update images in manifests with current build
     sh("sed -i.bak 's#quay.io/${project}/${appName}:.*\$#${imageTag}#' ./k8s/canary/*.yaml")
     sh("sed -i.bak 's#quay.io/${project}/${appName}:.*\$#${imageTag}#' ./k8s/production/*.yaml")
+
     sh("kubectl create namespace ${namespace}")
     sh("kubectl --namespace=${namespace} apply -f k8s/services/")
+
     sh("kubectl --namespace=${namespace} apply -f k8s/canary/")
     sh("kubectl --namespace=${namespace} label deployment hello-world-canary --overwrite version=v${BUILD_NUMBER}")
     sh("kubectl --namespace=${namespace} label pod  -l env=canary --all --overwrite version=v${BUILD_NUMBER}")
@@ -56,6 +59,7 @@ node {
     sh("kubectl --namespace=${namespace} apply -f k8s/production/")
     sh("kubectl --namespace=${namespace} label deployment hello-world-production --overwrite version=v${BUILD_NUMBER}")
     sh("kubectl --namespace=${namespace} label pod  -l env=production --all --overwrite version=v${BUILD_NUMBER}")
+
     currentBuild.result = 'SUCCESS'
     return
   } else {
@@ -69,6 +73,7 @@ node {
     sh("kubectl --namespace=${namespace} label deployment hello-world-canary --overwrite version=v${BUILD_NUMBER}")
     sh("kubectl --namespace=${namespace} label pod  -l env=canary --all --overwrite version=v${BUILD_NUMBER}")
   }
+
   stage 'Verify Canary'
   def didTimeout = false
   def userInput = true
@@ -91,7 +96,6 @@ node {
     	sh("kubectl --namespace=${namespace} set image deployment/hello-world-canary hello-world=${prevImageTag}")
     	sh("kubectl --namespace=${namespace} label deployment hello-world-canary --overwrite version=${prevBuildNum}")
       sh("kubectl --namespace=${namespace} label pod  -l env=canary --all --overwrite version=${prevBuildNum}")
-
     }
     error('Aborted')
   }
