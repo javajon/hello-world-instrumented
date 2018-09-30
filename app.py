@@ -19,9 +19,9 @@ hostname = socket.gethostname()
 @app.route('/')
 def index():
     # Call Greeter Service
-    timestamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    timestamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))	
     app.logger.debug("Starting at: " + timestamp)
-
+    
     # Check if a sleep was passed in as a parameter
     sleep = request.args.get("sleep")
     if sleep is not None:
@@ -35,7 +35,7 @@ def index():
 
     timestamp2 = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     app.logger.debug("Finished at: " + timestamp2)
-    return timestamp2 + " " + hostname + " Hello, World!! - stable\n"
+    return timestamp2 + " " + hostname + " Hello, World!!\n"
 
 if __name__ == '__main__':
     monitor(app, port=8000)
